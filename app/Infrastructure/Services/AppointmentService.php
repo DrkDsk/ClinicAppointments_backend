@@ -67,7 +67,7 @@ readonly class AppointmentService implements AppointmentServiceInterface
         $appointments = $doctor->appointments()->get()->pluck('scheduled_at');
         $availableDates = $doctor->schedule()->where('weekday', $indexDay)->first();
 
-        throw_unless($availableDates, new ScheduleNotAvailableException("No hay espacio disponible"));
+        throw_unless($availableDates, new ScheduleNotAvailableException("No hay espacio disponible para la fecha seleccionada"));
 
         $startTime = explode(":", $availableDates->start_time);
         $endTime = explode(":", $availableDates->end_time);
