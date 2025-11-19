@@ -20,22 +20,27 @@ class DoctorController extends Controller
 
     public function __construct(
         private readonly DoctorServiceInterface      $doctorService,
-        private readonly AppointmentServiceInterface $appointmentService) {}
+        private readonly AppointmentServiceInterface $appointmentService)
+    {
+    }
 
     public function get(Request $request): AnonymousResourceCollection
     {
         $perPage = $request->input('perPage', 10);
+        
         $doctors = $this->doctorService->getAllPaginate($perPage);
 
         return DoctorResource::collection($doctors);
     }
 
-    public function store(CreateDoctorRequest $request) : JsonResource
+    public function store(CreateDoctorRequest $request): JsonResource
     {
         try {
             $dto = CreateDoctorDTOFactory::fromRequest($request);
 
             $doctor = $this->doctorService->create($dto);
+
+            $doctor->load('person');
 
             return (new DoctorResource($doctor));
         } catch (Throwable $e) {

@@ -27,14 +27,20 @@ readonly class ReceptionistService implements ReceptionistServiceInterface
     public function create(PersonDTO $dto, string $password): Receptionist
     {
         return DB::transaction(function () use ($dto, $password) {
-            $person = $this->personService->create($dto);
-            $personId = $person->getAttribute('id');
+
+            $filter = [
+                'email' => $dto->email,
+                'phone' => $dto->phone,
+            ];
+
+            $person = $this->personService->create($dto, $filter);
+            $personId = $person->id;
 
             $this->userService->create($password, $personId, Role::RECEPTIONIST);
 
-            return $this->repository->create([
+            return $this->repository->firstOrCreate([
                 'person_id' => $personId
             ]);
-       });
+        });
     }
 }

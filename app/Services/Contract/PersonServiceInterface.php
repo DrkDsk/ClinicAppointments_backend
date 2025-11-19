@@ -9,8 +9,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface PersonServiceInterface
 {
-    public function getAllPaginate(int $perPage) : LengthAwarePaginator;
-    public function create(PersonDTO $personDTO): Person;
+    public function getAllPaginate(int $perPage): LengthAwarePaginator;
 
-    public function search(string $query) : Collection;
+    public function create(PersonDTO $personDTO, array $filter = []): Person;
+
+    public function search(string $query): Collection;
 }

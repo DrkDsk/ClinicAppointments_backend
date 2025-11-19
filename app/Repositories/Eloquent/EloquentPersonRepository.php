@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Person;
 use App\Repositories\Contract\PersonRepositoryInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class EloquentPersonRepository extends BaseRepository implements PersonRepositoryInterface
@@ -19,14 +20,20 @@ class EloquentPersonRepository extends BaseRepository implements PersonRepositor
         return $this->model->where($field, $value)->first();
     }
 
-    public function search(string $query) : Collection
+    public function search(string $query): Collection
     {
         return $this->model->search($query)->get();
     }
 
-    public function existByNames(string $name, string $lastName): ?Person
+    public function findWithFields(array $search): Builder
     {
-        return $this->model->where(['name' => $name, 'last_name' => $lastName])->first();
+        $query = $this->model->newQuery();
+
+        return $query->where(function ($query) use ($search) {
+            foreach ($search as $key => $value) {
+                $query->orWhere($key, $value);
+            }
+        });
     }
 }
 

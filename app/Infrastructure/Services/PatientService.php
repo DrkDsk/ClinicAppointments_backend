@@ -19,7 +19,8 @@ readonly class PatientService implements PatientServiceInterface
         private PatientRepositoryInterface $patientRepository,
         private PersonServiceInterface     $personService,
         private UserServiceInterface       $userService
-    ) {
+    )
+    {
     }
 
     /**
@@ -32,8 +33,15 @@ readonly class PatientService implements PatientServiceInterface
 
         return DB::transaction(function () use ($personData, $patientData) {
 
-            $person = $this->personService->create($personData);
-            $personId = $person->getAttribute('id');
+            $filter = [
+                "email" => $personData->email,
+                'phone' => $personData->phone,
+            ];
+
+            $person = $this->personService->create($personData, $filter);
+
+            $personId = $person->id;
+
             $password = $patientData->password;
 
             if ($password) {
@@ -44,13 +52,19 @@ readonly class PatientService implements PatientServiceInterface
                 );
             }
 
-            return $this->patientRepository->create([
+            $payload = [
                 'person_id' => $personId,
                 'weight' => $patientData->weight,
                 'height' => $patientData->height,
                 'weight_measure_type' => $patientData->weightMeasureEnum,
                 'height_measure_type' => $patientData->heightMeasureEnum
-            ]);
+            ];
+            
+            $search = [
+                'person_id' => $personId,
+            ];
+
+            return $this->patientRepository->firstOrCreate($payload, $search);
         });
     }
 

@@ -19,4 +19,6 @@ interface BaseRepositoryInterface
     public function update(int $id, array $data): bool;
 
     public function delete(int $id): bool;
+
+    public function firstOrCreate(array $payload, array $search = []): Model;
 }

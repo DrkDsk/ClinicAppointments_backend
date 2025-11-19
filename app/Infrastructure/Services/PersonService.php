@@ -20,36 +20,22 @@ readonly class PersonService implements PersonServiceInterface
     /**
      * @throws Throwable
      */
-    public function create(PersonDTO $personDTO): Person
+    public function create(PersonDTO $personDTO, array $filter = []): Person
     {
-
-        $email = $personDTO->email;
-        $phone = $personDTO->phone;
-        $name = $personDTO->name;
-        $lastName = $personDTO->lastName;
-
-        $person = null;
-
-        if ($email) {
-            $person = $this->repository->existsByField(value: $email, field: "email");
-        } else if ($phone) {
-            $person = $this->repository->existsByField(value: $phone);
-        } else if ($name) {
-            $person = $this->repository->existByNames(name: $name, lastName: $lastName);
-        }
+        $person = $this->repository->findWithFields($filter)->first();
 
         if ($person) {
             return $person;
         }
 
         return DB::transaction(function () use ($personDTO) {
-            return $this->repository->create($personDTO->toArray());
+            return $this->repository->firstOrCreate($personDTO->toArray());
         });
     }
 
     public function getAllPaginate(int $perPage): LengthAwarePaginator
     {
-       return $this->repository->paginate($perPage);
+        return $this->repository->paginate($perPage);
     }
 
     public function search(string $query): Collection

@@ -19,8 +19,9 @@ use Throwable;
 
 readonly class AppointmentService implements AppointmentServiceInterface
 {
-    public function __construct(private AppointmentRepositoryInterface $appointmentRepository,
-                                private PatientServiceInterface $patientService)
+    public function __construct(
+        private AppointmentRepositoryInterface $appointmentRepository,
+        private PatientServiceInterface        $patientService)
     {
     }
 
@@ -29,11 +30,17 @@ readonly class AppointmentService implements AppointmentServiceInterface
      */
     public function create(CreateAppointmentDTO $appointmentData): Appointment
     {
-        return DB::transaction(function () use ($appointmentData) {
-            $scheduledAt = $appointmentData->scheduledAt->format('Y-m-d H:i');
+
+        $scheduledAt = $appointmentData->scheduledAt->format('Y-m-d H:i');
+        $doctorId = $appointmentData->doctorId;
+        $personData = $appointmentData->createPersonDTO->personDTO;
+        $typeAppointmentId = $appointmentData->typeAppointmentId;
+        $note = $appointmentData->note;
+
+        return DB::transaction(function () use ($scheduledAt, $doctorId, $personData, $typeAppointmentId, $note) {
 
             $appointment = $this->appointmentRepository->findByScheduled(
-                doctorId: $appointmentData->doctorId,
+                doctorId: $doctorId,
                 scheduledAt: $scheduledAt
             );
 
@@ -44,24 +51,22 @@ readonly class AppointmentService implements AppointmentServiceInterface
                 throw new AppointmentExistsException($messageException);
             }
 
-            $personData = $appointmentData->createPersonDTO->personDTO;
             $patientData = CreatePatientDTOFactory::fromData(personData: $personData);
+            $typeAppointmentId = $typeAppointmentId ?? $this->appointmentRepository->findTypeAppointment()->id;
+            $patientId = $appointmentData->patientId ?? $this->patientService->create($patientData)->id;
 
-            $typeAppointmentId = $appointmentData->typeAppointmentId ??
-                $this->appointmentRepository->findTypeAppointment()->id;
-
-            return $this->appointmentRepository->create([
+            return $this->appointmentRepository->firstOrCreate([
                 'scheduled_at' => $scheduledAt,
-                'patient_id' => $appointmentData->patientId ?? $this->patientService->create($patientData)->id,
-                'doctor_id' => $appointmentData->doctorId,
+                'patient_id' => $patientId,
+                'doctor_id' => $doctorId,
                 'type_appointment_id' => $typeAppointmentId,
-                'note' => $appointmentData->note,
+                'note' => $note,
                 'status' => AppointmentsStatus::SCHEDULED
             ]);
         });
     }
 
-    public function getAllPaginated(int $perPage) : LengthAwarePaginator
+    public function getAllPaginated(int $perPage): LengthAwarePaginator
     {
         return $this->appointmentRepository->paginate($perPage, ['doctor', 'patient', 'typeAppointment']);
     }

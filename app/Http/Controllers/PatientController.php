@@ -29,12 +29,14 @@ class PatientController extends Controller
         }
     }
 
-    public function store(CreatePatientRequest $request) : JsonResource
+    public function store(CreatePatientRequest $request): JsonResource
     {
         try {
             $dto = CreatePatientDTOFactory::fromRequest($request);
 
             $patient = $this->patientService->create($dto);
+
+            $patient->load('person');
 
             return new PatientResource($patient);
         } catch (Throwable $e) {

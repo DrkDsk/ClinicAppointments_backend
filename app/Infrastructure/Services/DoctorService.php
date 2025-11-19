@@ -19,13 +19,14 @@ readonly class DoctorService implements DoctorServiceInterface
         private DoctorRepositoryInterface $repository,
         private PersonServiceInterface    $personService,
         private UserServiceInterface      $userService
-    ) {
+    )
+    {
     }
 
     /**
      * @throws Throwable
      */
-    public function create(CreateDoctorDTO $dto) : Doctor
+    public function create(CreateDoctorDTO $dto): Doctor
     {
         $personData = $dto->person;
         $password = $dto->password;
@@ -33,7 +34,16 @@ readonly class DoctorService implements DoctorServiceInterface
 
         return DB::transaction(function () use ($personData, $password, $specialty) {
 
-            $person = $this->personService->create($personData);
+            $email = $personData->email;
+            $phone = $personData->phone;
+
+            $filter = [
+                'email' => $email,
+                'phone' => $phone,
+            ];
+
+            $person = $this->personService->create($personData, $filter);
+
             $personId = $person->getAttribute('id');
 
             if ($password) {
@@ -44,7 +54,7 @@ readonly class DoctorService implements DoctorServiceInterface
                 );
             }
 
-            return $this->repository->create([
+            return $this->repository->firstOrCreate([
                 'person_id' => $personId,
                 'specialty' => $specialty
             ]);

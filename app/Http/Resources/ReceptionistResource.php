@@ -16,7 +16,7 @@ class ReceptionistResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'person' => new ProfileResource($this->person)
+            'profile' => ProfileResource::make($this->whenLoaded('person'))
         ];
     }
 }

@@ -33,7 +33,7 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function update(int $id, array $data): bool
     {
-       $instance = $this->find($id);
+        $instance = $this->find($id);
         return $instance && $instance->update($data);
     }
 
@@ -46,5 +46,14 @@ class BaseRepository implements BaseRepositoryInterface
     public function paginate(int $perPage, array $relations = []): LengthAwarePaginator
     {
         return $this->model->with($relations)->paginate($perPage);
+    }
+
+    public function firstOrCreate(array $payload, array $search = []): Model
+    {
+        if (!count($search)) {
+            $search = $payload;
+        }
+
+        return $this->model->firstOrCreate($search, $payload);
     }
 }

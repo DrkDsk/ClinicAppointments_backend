@@ -17,6 +17,7 @@ class CreateDoctorDTOFactory
 
         $personDto = new PersonDTO(
             name: $person['name'],
+            lastName: $person['last_name'],
             email: $person['email'],
             birthday: Carbon::parse($person['birthday']),
             phone: $person['phone']

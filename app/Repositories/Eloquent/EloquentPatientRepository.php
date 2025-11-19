@@ -12,4 +12,14 @@ class EloquentPatientRepository extends BaseRepository implements PatientReposit
     {
         parent::__construct($model);
     }
+
+    public function create(array $data): Patient {
+        $patient = $this->model->where('person_id', $data['person_id'])->first();
+
+        if ($patient) {
+            return $patient;
+        }
+
+        return $this->model->create($data);
+    }
 }

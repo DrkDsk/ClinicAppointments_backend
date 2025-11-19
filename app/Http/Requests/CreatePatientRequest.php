@@ -30,6 +30,7 @@ class CreatePatientRequest extends FormRequest
 
             'person' => ['required', 'array'],
             'person.name' => ['required', 'string'],
+            'person.last_name' => ['required', 'string'],
             'person.email' => ['required', 'email'],
             'person.birthday' => ['required', 'date', 'before:today'],
             'person.phone' => ['required', 'digits:10'],
