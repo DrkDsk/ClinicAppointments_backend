@@ -6,7 +6,7 @@ readonly class CreatePersonDTO
 {
     public function __construct(
         public PersonDTO $personDTO,
-        public string $password
+        public ?string $password = null
     )
     {
     }

@@ -10,10 +10,10 @@ readonly class CreatePatientDTO
 {
     public function __construct(
         public PersonDTO         $person,
-        public float             $weight,
-        public float             $height,
-        public WeightMeasureEnum $weightMeasureEnum,
-        public HeightMeasureEnum $heightMeasureEnum,
+        public ?float             $weight  = null,
+        public ?float             $height = null,
+        public ?WeightMeasureEnum $weightMeasureEnum = null,
+        public ?HeightMeasureEnum $heightMeasureEnum = null,
         public ?string     $password = null,
         public ?int              $id = null,
     ) {

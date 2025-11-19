@@ -3,7 +3,6 @@
 namespace App\Infrastructure\Services;
 
 use App\Classes\DTOs\Person\PersonDTO;
-use App\Exceptions\PersonExistException;
 use App\Models\Person;
 use App\Repositories\Contract\PersonRepositoryInterface;
 use App\Services\Contract\PersonServiceInterface;
@@ -19,14 +18,29 @@ readonly class PersonService implements PersonServiceInterface
     }
 
     /**
-     * @throws PersonExistException
      * @throws Throwable
      */
     public function create(PersonDTO $personDTO): Person
     {
-        $person = $this->repository->existsByField(value: $personDTO->email, field: "email");
 
-        throw_if($person, new PersonExistException(message: "Este usuario ya se encuentra registrado"));
+        $email = $personDTO->email;
+        $phone = $personDTO->phone;
+        $name = $personDTO->name;
+        $lastName = $personDTO->lastName;
+
+        $person = null;
+
+        if ($email) {
+            $person = $this->repository->existsByField(value: $email, field: "email");
+        } else if ($phone) {
+            $person = $this->repository->existsByField(value: $phone);
+        } else if ($name) {
+            $person = $this->repository->existByNames(name: $name, lastName: $lastName);
+        }
+
+        if ($person) {
+            return $person;
+        }
 
         return DB::transaction(function () use ($personDTO) {
             return $this->repository->create($personDTO->toArray());

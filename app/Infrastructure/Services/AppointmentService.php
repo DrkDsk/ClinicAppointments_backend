@@ -6,10 +6,12 @@ use App\Classes\Const\AppointmentsStatus;
 use App\Classes\DTOs\Appointment\CreateAppointmentDTO;
 use App\Exceptions\AppointmentExistsException;
 use App\Exceptions\ScheduleNotAvailableException;
+use App\Factories\CreatePatientDTOFactory;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Repositories\Contract\AppointmentRepositoryInterface;
 use App\Services\Contract\AppointmentServiceInterface;
+use App\Services\Contract\PatientServiceInterface;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,8 @@ use Throwable;
 
 readonly class AppointmentService implements AppointmentServiceInterface
 {
-    public function __construct(private AppointmentRepositoryInterface $appointmentRepository)
+    public function __construct(private AppointmentRepositoryInterface $appointmentRepository,
+                                private PatientServiceInterface $patientService)
     {
     }
 
@@ -41,11 +44,17 @@ readonly class AppointmentService implements AppointmentServiceInterface
                 throw new AppointmentExistsException($messageException);
             }
 
+            $personData = $appointmentData->createPersonDTO->personDTO;
+            $patientData = CreatePatientDTOFactory::fromData(personData: $personData);
+
+            $typeAppointmentId = $appointmentData->typeAppointmentId ??
+                $this->appointmentRepository->findTypeAppointment()->id;
+
             return $this->appointmentRepository->create([
                 'scheduled_at' => $scheduledAt,
-                'patient_id' => $appointmentData->patientId,
+                'patient_id' => $appointmentData->patientId ?? $this->patientService->create($patientData)->id,
                 'doctor_id' => $appointmentData->doctorId,
-                'type_appointment_id' => $appointmentData->typeAppointmentId,
+                'type_appointment_id' => $typeAppointmentId,
                 'note' => $appointmentData->note,
                 'status' => AppointmentsStatus::SCHEDULED
             ]);
@@ -67,7 +76,9 @@ readonly class AppointmentService implements AppointmentServiceInterface
         $appointments = $doctor->appointments()->get()->pluck('scheduled_at');
         $availableDates = $doctor->schedule()->where('weekday', $indexDay)->first();
 
-        throw_unless($availableDates, new ScheduleNotAvailableException("No hay espacio disponible para la fecha seleccionada"));
+        if (!$availableDates) {
+            throw new ScheduleNotAvailableException("No hay espacio disponible para la fecha seleccionada");
+        }
 
         $startTime = explode(":", $availableDates->start_time);
         $endTime = explode(":", $availableDates->end_time);

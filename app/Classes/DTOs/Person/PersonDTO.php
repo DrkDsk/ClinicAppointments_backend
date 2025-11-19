@@ -8,9 +8,10 @@ readonly class PersonDTO
 {
     public function __construct(
         public string $name,
-        public string $email,
-        public Carbon $birthday,
-        public string $phone,
+        public string $lastName,
+        public ?string $email = null,
+        public ?Carbon $birthday = null,
+        public ?string $phone = null,
         public ?int   $id = null,
     ) {
     }
@@ -19,9 +20,10 @@ readonly class PersonDTO
     {
         return [
             "name" => $this->name,
-            "email" => $this->email,
-            "birthday" => $this->birthday->format('Y-m-d'),
-            "phone" => $this->phone,
+            "last_name" => $this->lastName,
+            "email" => $this->email ?? null,
+            "birthday" => $this->birthday?->format('Y-m-d') ?? null,
+            "phone" => $this->phone ?? null,
         ];
     }
 }

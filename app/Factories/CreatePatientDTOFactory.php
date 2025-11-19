@@ -18,6 +18,7 @@ class CreatePatientDTOFactory
 
         $personDto = new PersonDTO(
             name: $request->person["name"],
+            lastName: $request->person["last_name"],
             email: $request->person["email"],
             birthday: Carbon::parse($request->person["birthday"]),
             phone: $request->person["phone"]
@@ -32,6 +33,13 @@ class CreatePatientDTOFactory
             weightMeasureEnum: $weightType,
             heightMeasureEnum: $heightType,
             password: $user ? $request->user["password"] : null
+        );
+    }
+
+    public static function fromData(PersonDTO $personData): CreatePatientDTO
+    {
+        return new CreatePatientDTO(
+            person: $personData
         );
     }
 }

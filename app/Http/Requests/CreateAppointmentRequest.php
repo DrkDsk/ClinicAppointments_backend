@@ -23,10 +23,14 @@ class CreateAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'patient_id' => 'required|exists:patients,id',
+            'patient_id' => ['nullable', 'exists:patients,id'],
+            'person' => ['required_without:patient_id', 'array'],
+
+            'person.name' => ['required', 'string'],
+            'person.last_name' => ['required', 'string'],
+
             'doctor_id' => 'required|exists:doctors,id',
             'scheduled_at' => 'required|date',
-            'type_appointment_id' => 'required|exists:type_appointments,id',
             'note' => ['nullable', 'string'],
         ];
     }

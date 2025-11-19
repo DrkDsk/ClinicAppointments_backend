@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Classes\Const\AppointmentType;
-use App\Models\TypeAppointment;
+use App\Classes\Enum\TypeAppointmentEnum;
 use Illuminate\Database\Seeder;
 
 class TypeAppointmentSeeder extends Seeder
@@ -14,13 +13,13 @@ class TypeAppointmentSeeder extends Seeder
     public function run(): void
     {
         $names = [
-            AppointmentType::INITIAL,
-            AppointmentType::CONTROL,
-            AppointmentType::URGENCE
+            TypeAppointmentEnum::INITIAL,
+            TypeAppointmentEnum::CONTROL,
+            TypeAppointmentEnum::URGENCE
         ];
 
-        TypeAppointment::insert(
-            collect($names)->map(fn($name) => [ 
+        TypeAppointmentEnum::insert(
+            collect($names)->map(fn($name) => [
                 'name' => $name,
                 'description' => ''
             ])->toArray()

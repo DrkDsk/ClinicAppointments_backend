@@ -3,7 +3,9 @@
 namespace App\Repositories\Eloquent;
 
 
+use App\Classes\Enum\TypeAppointmentEnum;
 use App\Models\Appointment;
+use App\Models\TypeAppointment;
 use App\Repositories\Contract\AppointmentRepositoryInterface;
 
 class EloquentAppointmentRepository extends BaseRepository implements AppointmentRepositoryInterface
@@ -19,5 +21,11 @@ class EloquentAppointmentRepository extends BaseRepository implements Appointmen
             ->where('scheduled_at', $scheduledAt)
             ->lockForUpdate()
             ->first();
+    }
+
+
+    public function findTypeAppointment(string $name = TypeAppointmentEnum::INITIAL->value): TypeAppointment
+    {
+        return TypeAppointment::where('name', $name)->lockForUpdate()->first();
     }
 }

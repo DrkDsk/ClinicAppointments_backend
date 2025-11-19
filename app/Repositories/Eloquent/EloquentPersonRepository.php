@@ -23,5 +23,10 @@ class EloquentPersonRepository extends BaseRepository implements PersonRepositor
     {
         return $this->model->search($query)->get();
     }
+
+    public function existByNames(string $name, string $lastName): ?Person
+    {
+        return $this->model->where(['name' => $name, 'last_name' => $lastName])->first();
+    }
 }
 
