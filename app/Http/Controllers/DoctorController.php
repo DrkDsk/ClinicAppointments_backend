@@ -58,7 +58,7 @@ class DoctorController extends Controller
                 message: 'Horarios obtenidos correctamente'
             );
         } catch (Throwable $e) {
-            return new ErrorResource(message: $e->getMessage(), statusCode: 409);
+            return new ErrorResource(message: $e->getMessage(), statusCode: 200);
         }
     }
 }
