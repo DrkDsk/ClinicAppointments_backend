@@ -10,7 +10,7 @@ class Person extends Model
 {
     use HasFactory;
     protected $table = "people";
-    protected $fillable = ['name', 'email', 'birthday', 'phone'];
+    protected $fillable = ['name', 'last_name','email', 'birthday', 'phone'];
 
     public function user(): HasOne
     {

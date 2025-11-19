@@ -23,7 +23,7 @@ class UserController extends Controller
         $user = $request->user();
 
         if (!$user) {
-            return new ErrorResource("El usuario no está autenticado", statusCode: 403);
+            return new ErrorResource("El usuario no está autenticado", statusCode: 200);
         }
 
         return new UserResource($user);

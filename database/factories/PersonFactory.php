@@ -23,13 +23,14 @@ class PersonFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'birthday' => $this->faker->date('Y-m-d', '2005-01-01'),
             'phone' => $this->faker->phoneNumber()
         ];
     }
 
-    public function configure()
+    public function configure(): Factory|PersonFactory
     {
         return $this->afterCreating(function (Person $person) {
 

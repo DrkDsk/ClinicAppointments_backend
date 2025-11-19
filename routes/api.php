@@ -21,10 +21,8 @@ Route::middleware(['auth:sanctum', "role_or_admin:$receptionistRole"])->group(fu
     });
 
     Route::prefix('doctors')->group(function () {
-        Route::get('get', [DoctorController::class, 'get']);
         Route::post('create', [DoctorController::class, 'store']);
         Route::get('specialties', [SpecialtyController::class, 'get']);
-        Route::get('/{doctor}/available-times', [DoctorController::class, 'getAvailableTimes']);
     });
 
     Route::prefix('patients')->group(function () {
@@ -42,15 +40,27 @@ Route::middleware(['auth:sanctum', "role_or_admin:$receptionistRole"])->group(fu
     });
 
     Route::prefix('appointments')->group(function () {
-        Route::post('store', [AppointmentController::class, 'store']);
         Route::get('get', [AppointmentController::class, 'get']);
-        Route::get('show/{appointment}', [AppointmentController::class, 'show']);
     });
 });
 
+
+//NO AUTH
 Route::prefix('auth')->group(function () {
     Route::post('login', [LoginController::class, 'login']);
     Route::post('logout', [LoginController::class, 'logout']);
     Route::get('get', [UserController::class, 'get']);
     Route::post('enroll/{person}', [UserController::class, 'enroll']);
 });
+
+Route::prefix('doctors')->group(function () {
+    Route::get('get', [DoctorController::class, 'get']);
+    Route::get('/{doctor}/available-times', [DoctorController::class, 'getAvailableTimes']);
+});
+
+
+Route::prefix('appointments')->group(function () {
+    Route::post('store', [AppointmentController::class, 'store']);
+    Route::get('show/{appointment}', [AppointmentController::class, 'show']);
+});
+
