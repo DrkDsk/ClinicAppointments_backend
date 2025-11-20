@@ -5,11 +5,13 @@ namespace App\Infrastructure\Services;
 use App\Classes\Const\AppointmentsStatus;
 use App\Classes\DTOs\Appointment\CreateAppointmentDTO;
 use App\Exceptions\AppointmentExistsException;
+use App\Exceptions\PersonExistException;
 use App\Exceptions\ScheduleNotAvailableException;
 use App\Factories\CreatePatientDTOFactory;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Repositories\Contract\AppointmentRepositoryInterface;
+use App\Repositories\Contract\PatientRepositoryInterface;
 use App\Services\Contract\AppointmentServiceInterface;
 use App\Services\Contract\PatientServiceInterface;
 use Carbon\Carbon;
@@ -21,6 +23,7 @@ readonly class AppointmentService implements AppointmentServiceInterface
 {
     public function __construct(
         private AppointmentRepositoryInterface $appointmentRepository,
+        private PatientRepositoryInterface     $patientRepository,
         private PatientServiceInterface        $patientService)
     {
     }
@@ -33,11 +36,19 @@ readonly class AppointmentService implements AppointmentServiceInterface
 
         $scheduledAt = $appointmentData->scheduledAt->format('Y-m-d H:i');
         $doctorId = $appointmentData->doctorId;
+        $patientId = $appointmentData->patientId;
         $personData = $appointmentData->createPersonDTO->personDTO;
         $typeAppointmentId = $appointmentData->typeAppointmentId;
         $note = $appointmentData->note;
 
-        return DB::transaction(function () use ($scheduledAt, $doctorId, $personData, $typeAppointmentId, $note) {
+        return DB::transaction(function () use (
+            $scheduledAt,
+            $doctorId,
+            $patientId,
+            $personData,
+            $typeAppointmentId,
+            $note
+        ) {
 
             $appointment = $this->appointmentRepository->findByScheduled(
                 doctorId: $doctorId,
@@ -53,7 +64,16 @@ readonly class AppointmentService implements AppointmentServiceInterface
 
             $patientData = CreatePatientDTOFactory::fromData(personData: $personData);
             $typeAppointmentId = $typeAppointmentId ?? $this->appointmentRepository->findTypeAppointment()->id;
-            $patientId = $appointmentData->patientId ?? $this->patientService->create($patientData)->id;
+
+            if (!$patientId) {
+                try {
+                    $patientId = $this->patientService->create($patientData)->id;
+                } catch (PersonExistException $e) {
+                    $personId = $e->getId();
+                    $patient = $this->patientRepository->findByField('person_id', $personId);
+                    $patientId = $patient->id;
+                }
+            }
 
             return $this->appointmentRepository->firstOrCreate([
                 'scheduled_at' => $scheduledAt,

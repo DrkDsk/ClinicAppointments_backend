@@ -40,7 +40,7 @@ class PatientController extends Controller
 
             return new PatientResource($patient);
         } catch (Throwable $e) {
-            return new ErrorResource(message: $e->getMessage());
+            return new ErrorResource(message: $e->getMessage(), statusCode: 409);
         }
     }
 }

@@ -27,7 +27,7 @@ class DoctorController extends Controller
     public function get(Request $request): AnonymousResourceCollection
     {
         $perPage = $request->input('perPage', 10);
-        
+
         $doctors = $this->doctorService->getAllPaginate($perPage);
 
         return DoctorResource::collection($doctors);
@@ -44,7 +44,7 @@ class DoctorController extends Controller
 
             return (new DoctorResource($doctor));
         } catch (Throwable $e) {
-            return new ErrorResource(message: $e->getMessage());
+            return new ErrorResource(message: $e->getMessage(), statusCode: 409);
         }
     }
 

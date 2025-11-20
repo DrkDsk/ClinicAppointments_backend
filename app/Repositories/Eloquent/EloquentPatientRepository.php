@@ -13,7 +13,8 @@ class EloquentPatientRepository extends BaseRepository implements PatientReposit
         parent::__construct($model);
     }
 
-    public function create(array $data): Patient {
+    public function create(array $data): Patient
+    {
         $patient = $this->model->where('person_id', $data['person_id'])->first();
 
         if ($patient) {
@@ -21,5 +22,10 @@ class EloquentPatientRepository extends BaseRepository implements PatientReposit
         }
 
         return $this->model->create($data);
+    }
+
+    public function findByField(string $field, string $value): ?Patient
+    {
+        return $this->model->where($field, $value)->first();
     }
 }

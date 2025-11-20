@@ -2,6 +2,9 @@
 
 namespace App\Repositories\Contract;
 
-interface PatientRepositoryInterface extends  BaseRepositoryInterface
+use App\Models\Patient;
+
+interface PatientRepositoryInterface extends BaseRepositoryInterface
 {
+    public function findByField(string $field, string $value): ?Patient;
 }

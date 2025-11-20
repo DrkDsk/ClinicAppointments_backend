@@ -3,6 +3,7 @@
 namespace App\Infrastructure\Services;
 
 use App\Classes\DTOs\Person\PersonDTO;
+use App\Exceptions\PersonExistException;
 use App\Models\Person;
 use App\Repositories\Contract\PersonRepositoryInterface;
 use App\Services\Contract\PersonServiceInterface;
@@ -25,7 +26,10 @@ readonly class PersonService implements PersonServiceInterface
         $person = $this->repository->findWithFields($filter)->first();
 
         if ($person) {
-            return $person;
+            throw new PersonExistException(
+                id: $person->id,
+                message: "Este usuario ya se encuentra registrado.",
+            );
         }
 
         return DB::transaction(function () use ($personDTO) {

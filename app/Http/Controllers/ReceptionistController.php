@@ -30,7 +30,7 @@ class ReceptionistController extends Controller
 
             return new ReceptionistResource($receptionist);
         } catch (Throwable $e) {
-            return new ErrorResource(message: $e->getMessage());
+            return new ErrorResource(message: $e->getMessage(), statusCode: 409);
         }
     }
 }
