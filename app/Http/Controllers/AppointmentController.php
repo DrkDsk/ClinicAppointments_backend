@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Factories\CreateAppointmentDTOFactory;
 use App\Http\Requests\CreateAppointmentRequest;
+use App\Http\Requests\PaginatorRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Http\Resources\ErrorResource;
 use App\Models\Appointment;
 use App\Services\Contract\AppointmentServiceInterface;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Throwable;
 
@@ -34,9 +34,9 @@ class AppointmentController extends Controller
         }
     }
 
-    public function get(Request $request): AnonymousResourceCollection
+    public function get(PaginatorRequest $request): AnonymousResourceCollection
     {
-        $perPage = $request->input('perPage', 10);
+        $perPage = $request->input('perPage');
 
         $appointments = $this->service->getAllPaginated($perPage);
 

@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\UserExistsException;
 use App\Http\Requests\EnrollUserRequest;
+use App\Http\Requests\UserRequest;
 use App\Http\Resources\ErrorResource;
 use App\Http\Resources\UserResource;
 use App\Infrastructure\Services\EnrollService;
 use App\Models\Person;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Throwable;
 
@@ -18,7 +18,7 @@ class UserController extends Controller
     {
     }
 
-    public function get(Request $request): JsonResource
+    public function get(UserRequest $request): JsonResource
     {
         $user = $request->user();
 
@@ -26,9 +26,12 @@ class UserController extends Controller
             return new ErrorResource("El usuario no está autenticado", statusCode: 200);
         }
 
+        $user->load('person', 'roles');
+
         return new UserResource($user);
     }
-    public function enroll(Person $person, EnrollUserRequest $request) : JsonResource
+
+    public function enroll(Person $person, EnrollUserRequest $request): JsonResource
     {
         try {
             $user = $this->service->enroll($person, $request->validated('user.password'));
@@ -36,8 +39,7 @@ class UserController extends Controller
             return new UserResource($user);
         } catch (UserExistsException $e) {
             return new ErrorResource($e->getMessage(), statusCode: 409);
-        }
-        catch (Throwable) {
+        } catch (Throwable) {
             return new ErrorResource(statusCode: 500);
         }
     }

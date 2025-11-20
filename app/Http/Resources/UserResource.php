@@ -16,8 +16,8 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'person' => new ProfileResource($this->person),
-            'roles' => RoleResource::collection($this->roles)
+            'profile' => ProfileResource::make($this->whenLoaded('person')),
+            'roles' => RoleResource::collection($this->whenLoaded('roles')),
         ];
     }
 }

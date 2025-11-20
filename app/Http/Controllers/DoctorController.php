@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Factories\CreateDoctorDTOFactory;
 use App\Http\Requests\CreateDoctorRequest;
+use App\Http\Requests\DoctorAvailableScheduleRequest;
+use App\Http\Requests\PaginatorRequest;
 use App\Http\Resources\DoctorAvailableScheduleResource;
 use App\Http\Resources\DoctorResource;
 use App\Http\Resources\ErrorResource;
 use App\Models\Doctor;
 use App\Services\Contract\AppointmentServiceInterface;
 use App\Services\Contract\DoctorServiceInterface;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Throwable;
@@ -24,10 +25,10 @@ class DoctorController extends Controller
     {
     }
 
-    public function get(Request $request): AnonymousResourceCollection
+    public function get(PaginatorRequest $request): AnonymousResourceCollection
     {
-        $perPage = $request->input('perPage', 10);
-
+        $perPage = $request->input('perPage');
+        
         $doctors = $this->doctorService->getAllPaginate($perPage);
 
         return DoctorResource::collection($doctors);
@@ -48,14 +49,14 @@ class DoctorController extends Controller
         }
     }
 
-    public function getAvailableTimes(Doctor $doctor, Request $request): ErrorResource|DoctorAvailableScheduleResource
+    public function getAvailableTimes(Doctor $doctor, DoctorAvailableScheduleRequest $request): ErrorResource|DoctorAvailableScheduleResource
     {
         try {
-            $strDate = $request->input('date');
+            $date = $request->getDate();
 
             $availableSchedule = $this->appointmentService->getAvailableAppointmentsSchedule(
                 $doctor,
-                $strDate
+                $date
             );
 
             return new DoctorAvailableScheduleResource(

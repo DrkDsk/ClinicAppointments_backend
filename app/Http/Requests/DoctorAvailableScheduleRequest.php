@@ -2,12 +2,11 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use App\Classes\Const\Role as RoleClass;
 
-class GetRoleRequest extends FormRequest
+class DoctorAvailableScheduleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,15 +24,12 @@ class GetRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role' => ['required', 'string', Rule::in(RoleClass::all())],
-            'perPage' => ['nullable', 'integer', 'min:1'],
+            'date' => ['required', 'date', 'date_format:Y-m-d'],
         ];
     }
 
-    protected function prepareForValidation(): void
+    public function getDate(): Carbon
     {
-        $this->merge([
-            'perPage' => $this->perPage ?? 10,
-        ]);
+        return Carbon::parse($this["date"]);
     }
 }

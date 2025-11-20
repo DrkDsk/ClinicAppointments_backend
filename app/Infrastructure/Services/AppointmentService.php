@@ -94,9 +94,8 @@ readonly class AppointmentService implements AppointmentServiceInterface
     /**
      * @throws Throwable
      */
-    public function getAvailableAppointmentsSchedule(Doctor $doctor, string $strDate): array
+    public function getAvailableAppointmentsSchedule(Doctor $doctor, Carbon $date): array
     {
-        $date = Carbon::parse($strDate);
         $indexDay = $date->dayOfWeek;
         $appointments = $doctor->appointments()->get()->pluck('scheduled_at');
         $availableDates = $doctor->schedule()->where('weekday', $indexDay)->first();
@@ -110,7 +109,6 @@ readonly class AppointmentService implements AppointmentServiceInterface
 
         $startDate = $date->copy()->setTime($startTime[0], $startTime[1]);
         $endDate = $date->copy()->setTime($endTime[0], $endTime[1]);
-
 
         $hours = [];
         $current = $startDate->copy();

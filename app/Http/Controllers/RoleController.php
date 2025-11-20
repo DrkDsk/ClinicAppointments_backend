@@ -27,7 +27,7 @@ class RoleController extends Controller
     {
         $role = $request->input('role');
         $perPage = $request->input('perPage', 10);
-
+        
         $users = $this->userRepository->getByRolesPaginated($role, $perPage);
 
         return UserResource::collection($users);
